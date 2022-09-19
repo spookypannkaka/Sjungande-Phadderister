@@ -26,7 +26,7 @@ function listening(){
 
 function modelLoaded() {
   console.log('model loaded');
-  pitch.getPitch(gotPitch)
+  pitch.getPitch(gotPitch);
 }
 
 function gotPitch(error, frequency){
@@ -36,13 +36,13 @@ function gotPitch(error, frequency){
   if(frequency){
     freq = frequency;
   }
+  pitch.getPitch(gotPitch);
 }
 
 //Fixa harmonic product spectrum... 
 function draw() {
-  background(220);
+  background(43, 236, 82);
   //fill(255);
-  pitch.getPitch(gotPitch);
   textSize(64);
   text(freq.toFixed(2), width/2, height/2);
   let spectrum = fft.analyze();
@@ -51,9 +51,7 @@ function draw() {
     let h = -height + map(spectrum[i], 0, 255, height, 0);
     rect(x, height, width / spectrum.length, h )
   }
-  
 
-  
   //console.log('ml5 version:', ml5.version);
 
  /* micLevel = mic.getLevel();
