@@ -16,12 +16,12 @@ var startScreenContainer;
 // Preload ensures that everything within is loaded before setup does, to prevent
 // assets from ending up being incomplete during setup.
 function preload() {
-  startscreenBG = loadImage('./assets/startscreenBG.svg'); // Loads the start screen BG
-  startScreenPlay = createImg('./assets/knapp.svg').hide();
+  startscreenBG = loadImage('../assets/startscreenBG.svg'); // Loads the start screen BG
+  startScreenPlay = createImg('../assets/knapp.svg').hide();
   startScreenHelp = createButton('Hjälp');
   startScreenInfo = createDiv("nä du får ingen hjälp").hide();
   startScreenContainer = createDiv().hide();
-  startScreenTitle = createImg('./assets/titel.svg').hide();
+  startScreenTitle = createImg('../assets/titel.svg').hide();
 }
 
 function setup() {
