@@ -11,6 +11,7 @@ function setup() {
   // initialize mic 
   mic = new p5.AudioIn();
   mic.start();
+  fft.setInput(mic);
 }
 
 function draw() {
