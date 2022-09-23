@@ -59,6 +59,11 @@ function draw() {
     product[i] = product[i]/5000;
   }
 
+  // max freq
+  const max = Math.max(...product);
+  const index2 = product.indexOf(max);
+  console.log(round(index2*interval));
+
   // draw the freq spectrum 
   noStroke();
   fill(255, 0, 255);
