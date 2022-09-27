@@ -2,7 +2,6 @@ let mic, filter;
 
 function setup() {
   
-
   // create canvas
   createCanvas(1024, 700);
 
@@ -13,6 +12,16 @@ function setup() {
   mic = new p5.AudioIn();
   mic.start();
   fft.setInput(mic);
+
+  // ny kod 
+  // //web audio setup - get access to API 
+  // const audioContext = new AudioContext();
+
+  // // creates an analyzer that will do the fft
+  // const analyser = audioContext.createAnalyser();
+
+  // // size of fft (2^15)
+  // analyser.fftSize = 32768;
 }
 
 function draw() {
