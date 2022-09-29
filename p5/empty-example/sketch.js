@@ -4,6 +4,7 @@ let pitch;
 let audioContext;
 let freq = 0;
 
+
 //Setup av starta lyssna, ladda in mic osv
  function setup(){
   let cnv = createCanvas(400, 400);
@@ -25,7 +26,6 @@ function listening(){
     audioContext,
     mic.stream,
     modelLoaded);
-
 }
 
 //Laddar modellen (oklart varför man måste göra detta?)
@@ -48,11 +48,19 @@ function gotPitch(error, frequency){
 
 //Fixa harmonic product spectrum... 
 function draw() {
+  let volume = mic.getLevel();
+  let threshold = 0.007;
+  console.log("volyme is " + volume);
   background(43, 236, 82);
   //Teststorlek samt freq.toFixed skriver ut frekvensen
   textSize(64);
-  text(freq.toFixed(2), width/2, height/2);
-
+  if(volume > threshold){
+    text(freq.toFixed(2), width/2, height/2);
+    //console.log(freq);
+  }
+  else{
+    text("0",width/2, height/2);
+  }
   //FFTn (som egentligen inte ens används)
   let spectrum = fft.analyze();
   for (let i = 0; i< spectrum.length; i++){
