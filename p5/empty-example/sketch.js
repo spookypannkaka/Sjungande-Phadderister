@@ -281,11 +281,11 @@ function notePosition() {
       break;
     case 2:
       noteY = noteLow;
-      position = 3;
+      position = 4;
       break;
     case 3:
       noteY = noteLow2;
-      position = 4;
+      position = 5;
       break;
   }
 
