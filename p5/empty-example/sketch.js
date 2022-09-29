@@ -17,6 +17,7 @@ const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/
 let pitch;
 let audioContext;
 let freq = 0;
+let threshold = 0.007;
 
 // All buttons
 var startPlay;
@@ -139,11 +140,15 @@ function modelLoaded() {
 //Funktionen som kollar om vi har en frekvens, om nej så loggar den ett error, om vi har fått in en frekvens sätts
 //Variabeln freq till vår frekvens sen körs den igen (basically en oändlig loop atm)
 function gotPitch(error, frequency){
+  let volume = mic.getLevel();
   if(error){
     console.log(error);
   }
-  if(frequency){
+  if(frequency && volume>threshold){
     freq = frequency;
+  }
+  else{
+    freq = 0;
   }
   pitch.getPitch(gotPitch);
 }
@@ -196,7 +201,7 @@ function startScreen(){
 }
 
 function gameOn(){
-
+  audioControl();
   // If coming from the start screen, hide its buttons
   startPlay.hide();
   startPlay2.hide();
@@ -399,7 +404,33 @@ function hideInfo() {
   startScreenInfo.hide();
 }
 
-function keyPressed() {
+function audioControl(){
+  console.log("frekvens = " + freq);
+  if (running){
+    if(freq >= 450){
+      playerY = 54;
+      playerCurrent = 1;
+    }
+    else if(450 > freq && freq > 300 ){
+      playerY = 186;
+      playerCurrent = 2;
+    }
+    else if(300 > freq && freq >= 150){
+      playerY = 452;
+      playerCurrent = 4;
+    }
+    else if(150 > freq && freq > 1){
+      playerY = 585;
+      playerCurrent = 5;
+    }
+    else {
+      playerY = 319;
+      playerCurrent = 3;
+    }
+  }
+}
+
+/*function keyPressed() {
   if (running) {
     switch(keyCode) {
       case 65:
@@ -436,7 +467,7 @@ function keyPressed() {
     return false;
   }
 }
-
+*/
 function gamePause() {
   running = !running;
 }
