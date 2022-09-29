@@ -1,15 +1,10 @@
-var screen = 0;
-var y=-20;
-var x=200;
-var speed = 5;
-var score= 0;
-var startBG;
-var startScreenPlay;
-var startScreenHelp;
-var startScreenInfo;
-var startScreenTitle;
-var title;
-var startScreenContainer;
+var screen = 0; // The current screen (start screen or game screen)
+var speed = 5; // The speed of the note
+var score = 0; // The current score
+var startBG; // The background image on the start screen
+var startInfo; // The "How to play" box on the start screen
+var startTitle; // The game's title on the start screen
+var startContainer; // Container with title and start screen buttons
 
 // Audio stuff
 let mic;
@@ -51,8 +46,6 @@ var noteHigh = 198;
 var noteLow = 463;
 var noteLow2 = 596;
 
-var positionNoteX = 1000;
-var positionNoteY;
 var positionX = 50;
 var positionAY = 50;
 var positionBY = 150;
@@ -63,10 +56,7 @@ var coordY = 250;
 
 var canvas;
 
-let notes = [];
-
-var leftEdge = positionX-27;
-var rightEdge = positionX+27;
+var notes = [];
 
 let running = true;
 let currentTime;
@@ -74,8 +64,6 @@ let timer = 2000;
 let nextChange = timer;
 
 let timeCounter = 0;
-//let time = setInterval(gameFunction(), 1000);
-//let nextSecond = time;
 
 let img;
 
@@ -97,9 +85,9 @@ function preload() {
   startHelp2 = createImg('../assets/hur2.svg').hide();
   startHelp3 = createImg('../assets/hur3.svg').hide();
 
-  startScreenInfo = createDiv("nä du får ingen hjälp").hide();
-  startScreenContainer = createDiv().hide();
-  startScreenTitle = createImg('../assets/titel.svg').hide();
+  startInfo = createDiv("nä du får ingen hjälp").hide();
+  startContainer = createDiv().hide();
+  startTitle = createImg('../assets/titel.svg').hide();
 
   positionImg = loadImage('../assets/position.svg');
   playerImg = loadImage('../assets/tempkaraktär.svg');
@@ -109,8 +97,6 @@ function preload() {
 function setup() {
   //canvas = createCanvas(screenWidth, screenHeight); // This sets the "size" of the game. It's 960x540 pixels (16:9 aspect ratio)
   let cnv = createCanvas(1440, 810); // This sets the "size" of the game. It's 960x540 pixels (16:9 aspect ratio)
-  //pixelDensity(1);
-  //image(startScreenBG,0,0).hide();
   audioContext = getAudioContext();
   cnv.mousePressed(userStartAudio);
   textAlign(CENTER);
@@ -150,8 +136,8 @@ function gotPitch(error, frequency){
 
 function draw() {
   if(screen == 0){ // Temporary change, start screen is 0
-    //startScreen()
-    gameOn();
+    startScreen()
+    //gameOn();
   }else if(screen == 1){
   	gameOn()
   }else if(screen==2){
@@ -167,20 +153,20 @@ function startScreen(){
 
     // Shows start screen buttons and images
     startHelp.show();
-    startScreenTitle.show();
+    startTitle.show();
     startPlay.show();
-    startScreenContainer.show();
+    startContainer.show();
 
     // This puts the title and the buttons in a column
     // They're being put in an empty div "startScreenContainer" with flexbox attributes
     //startScreenContainer.parent(canvas);
-    startScreenContainer.addClass('startScreenContainer');
-    startScreenContainer.child(startScreenTitle);
-    startScreenContainer.child(startPlay);
-    startScreenContainer.child(startHelp);
+    startContainer.addClass('startScreenContainer');
+    startContainer.child(startTitle);
+    startContainer.child(startPlay);
+    startContainer.child(startHelp);
     // The container's position on the canvas:
-    startScreenContainer.position(0,30);
-    startScreenContainer.center('horizontal');
+    startContainer.position(0,30);
+    startContainer.center('horizontal');
 
     startPlay.addClass('button');
     startPlay.mousePressed(screenChange);
@@ -188,9 +174,9 @@ function startScreen(){
     startHelp.addClass('button');
     startHelp.mousePressed(showInfo);
 
-    startScreenTitle.addClass('title');
+    startTitle.addClass('title');
 
-    startScreenInfo.addClass('helpBox');
+    startInfo.addClass('helpBox');
 		
 		reset();
 }
@@ -202,7 +188,7 @@ function gameOn(){
   startPlay2.hide();
   startPlay3.hide();
   startHelp.hide();
-  startScreenTitle.hide();
+  startTitle.hide();
 
 
 	background("#96ffff") // Sets background
@@ -236,48 +222,6 @@ function gameOn(){
       notes[i].display(); // Show note
     }
   }
-
-
-
-
-  ////////// SQUARE CODE
-  /*let c = color('magenta')
-  fill(c)
-  noStroke();
-  rect(positionX, positionAY, 55, 55); // Location (30,20), size 55x55
-  rect(positionX, positionBY, 55, 55);
-  rect(positionX, positionCY, 55, 55);
-  rect(positionX, positionDY, 55, 55);
-
-  c = color(255, 204, 0);
-  fill(c);
-  player = rect(coordX,coordY,55,55);
-
-  c = color('red');
-  fill(c)
-
-  if (running) { // The game is running
-
-    if (millis() > nextChange) {
-      notes.push(new Note());
-      nextChange = millis() + timer;
-    }
-  
-    for (let i = 0; i < notes.length; i++) {
-      notes[i].update();
-      notes[i].display();
-    }
-  } else { // The game is paused
-    for (let i = 0; i < notes.length; i++) {
-      notes[i].display(); // Show note
-    }
-  }*/
-  ///////////////////////
-
-  /*
-  if millis() = 30 000
-  end game
-  */
 }
 
 // The note class
@@ -392,33 +336,29 @@ function screenChange(){
 }
 
 function showInfo() {
-  startScreenInfo.show();
+  startInfo.show();
 }
 
 function hideInfo() {
-  startScreenInfo.hide();
+  startInfo.hide();
 }
 
 function keyPressed() {
   if (running) {
     switch(keyCode) {
       case 65:
-        coordY = positionAY;
         playerY = 54;
         playerCurrent = 1;
         break;
       case 83:
-        coordY = positionBY;
         playerY = 186;
         playerCurrent = 2;
         break;
       case 68:
-        coordY = positionCY;
         playerY = 452;
         playerCurrent = 4;
         break;
       case 70:
-        coordY = positionDY;
         playerY = 585;
         playerCurrent = 5;
         break;
