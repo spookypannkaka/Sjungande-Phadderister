@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="700"
-   height="200"
-   viewBox="0 0 185.20833 52.916666"
+   width="1050"
+   height="300"
+   viewBox="0 0 277.8125 79.374999"
    version="1.1"
    id="svg5"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
@@ -24,9 +24,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.4039843"
-     inkscape:cx="297.72413"
-     inkscape:cy="116.81043"
+     inkscape:zoom="0.99276682"
+     inkscape:cx="448.24222"
+     inkscape:cy="218.58104"
      inkscape:window-width="1920"
      inkscape:window-height="986"
      inkscape:window-x="-11"
@@ -37,8 +37,8 @@
      id="defs2">
     <rect
        x="1.4245174"
-       y="7.8348456"
-       width="694.45222"
+       y="7.8348455"
+       width="694.45221"
        height="187.32404"
        id="rect1193" />
   </defs>
@@ -48,28 +48,19 @@
      id="layer1">
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,6.5958122,0)"
-       id="text1191"
-       style="font-size:37.3333px;font-family:'Source Sans Pro';-inkscape-font-specification:'Source Sans Pro';white-space:pre;shape-inside:url(#rect1193);fill:#ffffff;fill-opacity:1;stroke-width:2.552;stroke-linejoin:bevel"><tspan
-         x="1.4238281"
-         y="40.500623"
-         id="tspan1358"><tspan
-           style="fill:#ff0000"
-           id="tspan1356">DETTA ÄR SPELETS TITEL OCH LOVISA ÄR </tspan></tspan><tspan
-         x="1.4238281"
-         y="87.167249"
-         id="tspan1362"><tspan
-           style="fill:#ff0000"
-           id="tspan1360">SÄMST PÅ TYPOGRAFI OCH VET INTE HUR </tspan></tspan><tspan
-         x="1.4238281"
-         y="133.83388"
-         id="tspan1366"><tspan
-           style="fill:#ff0000"
-           id="tspan1364">MAN DESIGNAR EN SNYGG TITEL </tspan></tspan><tspan
-         x="1.4238281"
-         y="180.5005"
-         id="tspan1370"><tspan
-           style="fill:#ff0000"
-           id="tspan1368">(DESSUTOM BEHÖVER VI DÖPA SPELET)</tspan></tspan></text>
+       style="font-size:35.2453px;font-family:Kaph;-inkscape-font-specification:Kaph;text-align:center;text-anchor:middle;fill:#f86e6e;stroke-width:0.898755;stroke-linejoin:bevel"
+       x="138.90625"
+       y="32.201317"
+       id="text6138"><tspan
+         sodipodi:role="line"
+         id="tspan6136"
+         x="138.90625"
+         y="32.201317"
+         style="text-align:center;text-anchor:middle;stroke-width:0.898755">SPELETS</tspan><tspan
+         sodipodi:role="line"
+         x="138.90625"
+         y="76.257942"
+         style="text-align:center;text-anchor:middle;stroke-width:0.898755"
+         id="tspan6140">TITEL</tspan></text>
   </g>
 </svg>

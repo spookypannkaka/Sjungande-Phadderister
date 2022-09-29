@@ -1,3 +1,9 @@
+@font-face {
+    font-family: "Kaph";
+    src: url("../css-styles/kaph-font/Kaph-Regular.woff2") format("woff2"), url("../css-styles/kaph-font/Kaph-Regular.woff")
+        format("woff");
+}
+
 .button {
     /*background-color: #ffffff;
 
@@ -30,8 +36,8 @@
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    /*justify-content: center;*/
+    justify-content: center;
     /*align-items: center;*/
     /*align-content: normal;*/
-    gap: 0px 10px;
+    gap: 0px 70px;
 }
