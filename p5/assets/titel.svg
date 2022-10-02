@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="1050"
-   height="300"
-   viewBox="0 0 277.8125 79.374999"
+   width="886.81641"
+   height="211.65489"
+   viewBox="0 0 234.63683 56.000357"
    version="1.1"
    id="svg5"
    inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
@@ -25,14 +25,14 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.99276682"
-     inkscape:cx="448.24222"
-     inkscape:cy="218.58104"
+     inkscape:cx="15.612931"
+     inkscape:cy="101.73587"
      inkscape:window-width="1920"
      inkscape:window-height="986"
      inkscape:window-x="-11"
      inkscape:window-y="-11"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
+     inkscape:current-layer="svg5" />
   <defs
      id="defs2">
     <rect
@@ -44,23 +44,39 @@
   </defs>
   <g
      inkscape:label="Lager 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1-7"
+     transform="matrix(1.2217694,0,0,1.2217694,-51.407569,-2.546758)">
     <text
        xml:space="preserve"
-       style="font-size:35.2453px;font-family:Kaph;-inkscape-font-specification:Kaph;text-align:center;text-anchor:middle;fill:#f86e6e;stroke-width:0.898755;stroke-linejoin:bevel"
-       x="138.90625"
-       y="32.201317"
-       id="text6138"><tspan
-         sodipodi:role="line"
-         id="tspan6136"
-         x="138.90625"
-         y="32.201317"
-         style="text-align:center;text-anchor:middle;stroke-width:0.898755">SPELETS</tspan><tspan
-         sodipodi:role="line"
-         x="138.90625"
-         y="76.257942"
-         style="text-align:center;text-anchor:middle;stroke-width:0.898755"
-         id="tspan6140">TITEL</tspan></text>
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:Kaph;-inkscape-font-specification:Kaph;text-align:center;text-anchor:middle;white-space:pre;inline-size:285.472;fill:#ffecec;fill-opacity:1;stroke:none;stroke-width:0.338667;stroke-linejoin:bevel;stroke-opacity:1"
+       x="57.832901"
+       y="92.74585"
+       id="text1200-5"
+       transform="matrix(0.80438083,0,0,0.80438083,92.579941,-52.860612)"
+       inkscape:label="Bottom"><tspan
+         x="57.832901"
+         y="92.74585"
+         id="tspan1097">SJUNGANDE<tspan
+   y="92.74585"
+   id="tspan1099"> </tspan></tspan><tspan
+         x="57.832901"
+         y="124.49585"
+         id="tspan1101">PHADDERISTER</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:Kaph;-inkscape-font-specification:Kaph;text-align:center;text-anchor:middle;white-space:pre;inline-size:285.472;fill:#f86e6e;fill-opacity:1;stroke:none;stroke-width:0.338667;stroke-linejoin:bevel"
+       x="57.832901"
+       y="92.74585"
+       id="text345-4"
+       transform="matrix(0.80438083,0,0,0.80438083,90.57994,-54.860613)"
+       inkscape:label="Top"><tspan
+         x="57.832901"
+         y="92.74585"
+         id="tspan1103">SJUNGANDE<tspan
+   y="92.74585"
+   id="tspan1105"> </tspan></tspan><tspan
+         x="57.832901"
+         y="124.49585"
+         id="tspan1107">PHADDERISTER</tspan></text>
   </g>
 </svg>

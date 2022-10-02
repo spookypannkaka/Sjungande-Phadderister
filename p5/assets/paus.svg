@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="154.44244mm"
+   height="121.86951mm"
+   viewBox="0 0 154.44244 121.86952"
+   version="1.1"
+   id="svg2987"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   sodipodi:docname="paus.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview2989"
+     pagecolor="#5b5b5b"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.99276681"
+     inkscape:cx="132.96174"
+     inkscape:cy="230.66847"
+     inkscape:window-width="1920"
+     inkscape:window-height="986"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2987" />
+  <defs
+     id="defs2984" />
+  <g
+     inkscape:label="Lager 1"
+     id="layer1-41"
+     transform="matrix(1.1118466,0,0,1.1118466,-43.048691,-122.194)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:5.51258;stroke-linejoin:bevel"
+       id="rect5848-0"
+       width="138.90625"
+       height="109.61001"
+       x="38.718193"
+       y="109.90185"
+       ry="2.5168633"
+       rx="2.5168633" />
+    <text
+       xml:space="preserve"
+       style="font-size:13.3555px;font-family:Kaph;-inkscape-font-specification:Kaph;text-align:center;text-anchor:middle;fill:#ff8484;fill-opacity:1;stroke:none;stroke-width:4.05623;stroke-linejoin:bevel"
+       x="108.17131"
+       y="127.97839"
+       id="text1141-6"><tspan
+         sodipodi:role="line"
+         id="tspan1139-4"
+         style="fill:#ff8484;fill-opacity:1;stroke:none;stroke-width:4.05623"
+         x="108.17131"
+         y="127.97839">PAUSAT</tspan></text>
+  </g>
+</svg>
