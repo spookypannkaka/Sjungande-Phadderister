@@ -19,10 +19,12 @@ let pauseBox; // The container for the pause popup
 let timeBox; // The container for the time left
 let scoreBox; // The container for the score gained
 let results; // Div containing the text result, div is needed to display text on top of image
+let delayInfo; // Div containing the delay text
 
 let timeText; // Text displaying time remaining
 let scoreText; // Text displaying score gained
 let resultText; // Text displaying the results on end, ex. 20/20
+let delayText; // Text during the delay, "3,2,1,GO!"
 
 // Phadderister images
 // "Play" are used during gameplay, others are on the start screen
@@ -128,39 +130,43 @@ function preload() {
   familjenSound = loadSound('../assets/sound/foliage.mp3');
   skurkerietSound = loadSound('../assets/sound/evillaugh.mp3');
 
-  // Loaded images
-  startBG = loadImage('../assets/startBG.svg');
-  positionImg = loadImage('../assets/position.svg');
+  // Loaded images (these are bad as SVG is not supported here, which means images won't scale)
   noteImg = loadImage('../assets/note.svg');
-  legionenPlay = loadImage('../assets/legionenPlay.svg');
-  kretsnPlay = loadImage('../assets/kretsnPlay.svg');
-  nphadderietPlay = loadImage('../assets/n-phadderietPlay.svg');
-  familjenPlay = loadImage('../assets/familjenPlay.svg');
-  skurkerietPlay = loadImage('../assets/skurkerietPlay.svg');
-  characters = [legionenPlay, kretsnPlay, nphadderietPlay, familjenPlay, skurkerietPlay];
 
   // Created images
   // NOTE: They are all layered! Later images are layered on top of earlier images
-  legionen = createImg('../assets/legionen.svg').hide();
-  kretsn = createImg('../assets/kretsn.svg').hide();
-  nphadderiet = createImg('../assets/n-phadderiet.svg').hide();
-  familjen = createImg('../assets/familjen.svg').hide();
-  skurkeriet = createImg('../assets/skurkeriet.svg').hide();
-  startPlay = createImg('../assets/spela1.svg').hide();
-  startHelp = createImg('../assets/hur1.svg').hide();
-  startTitle = createImg('../assets/titel.svg').hide();
-  startInfo = createImg('../assets/hurmanspelar.svg').hide();
-  X = createImg('../assets/x.svg').hide();
-  endBox = createImg('../assets/avklarad.svg').hide();
-  endPlay = createImg('../assets/spelaigen1.svg').hide();
-  endQuit = createImg('../assets/avsluta1.svg').hide();
-  pauseBox = createImg('../assets/paus.svg').hide();
-  pauseContinue = createImg('../assets/fortsätt1.svg').hide();
-  pauseQuit = createImg('../assets/avsluta1.svg').hide();
-  pauseIcon = createImg('../assets/pausikon.svg').hide();
-  candy = createImg('../assets/note.svg').hide();
-  timeBox = createImg('../assets/tid.svg').hide();
-  scoreBox = createImg('../assets/score.svg').hide();
+  startBG = createImg('../assets/startBG.svg').hide();
+  positionHigh2 = createImg('../assets/position.svg').hide();
+  positionHigh = createImg('../assets/position.svg').hide();
+  positionLow = createImg('../assets/position.svg').hide();
+  positionLow2 = createImg('../assets/position.svg').hide();
+  legionenPlay = createImg('../assets/legionenPlay.svg').hide();
+  kretsnPlay = createImg('../assets/kretsnPlay.svg').hide();
+  nphadderietPlay = createImg('../assets/n-phadderietPlay.svg').hide();
+  familjenPlay = createImg('../assets/familjenPlay.svg').hide();
+  skurkerietPlay = createImg('../assets/skurkerietPlay.svg').hide();
+  characters = [legionenPlay, kretsnPlay, nphadderietPlay, familjenPlay, skurkerietPlay];
+  //noteImg = createImg('../assets/note.svg').hide();
+  legionen = createImg('../assets/legionen.svg',"").hide();
+  kretsn = createImg('../assets/kretsn.svg',"").hide();
+  nphadderiet = createImg('../assets/n-phadderiet.svg',"").hide();
+  familjen = createImg('../assets/familjen.svg',"").hide();
+  skurkeriet = createImg('../assets/skurkeriet.svg',"").hide();
+  startPlay = createImg('../assets/spela1.svg',"").hide();
+  startHelp = createImg('../assets/hur1.svg',"").hide();
+  startTitle = createImg('../assets/titel.svg',"").hide();
+  startInfo = createImg('../assets/hurmanspelar.svg',"").hide();
+  X = createImg('../assets/x.svg',"").hide();
+  endBox = createImg('../assets/avklarad.svg',"").hide();
+  endPlay = createImg('../assets/spelaigen1.svg',"").hide();
+  endQuit = createImg('../assets/avsluta1.svg',"").hide();
+  pauseBox = createImg('../assets/paus.svg',"").hide();
+  pauseContinue = createImg('../assets/fortsätt1.svg',"").hide();
+  pauseQuit = createImg('../assets/avsluta1.svg',"").hide();
+  pauseIcon = createImg('../assets/pausikon.svg',"").hide();
+  candy = createImg('../assets/note.svg',"").hide();
+  timeBox = createImg('../assets/tid.svg',"").hide();
+  scoreBox = createImg('../assets/score.svg',"").hide();
 
   // Divs for text
   results = createDiv(resultText)
@@ -174,6 +180,10 @@ function preload() {
   timeText = createDiv(timeLeft)
   .style('font-family','Kaph-Regular')
   .style('font-size','36px')
+  .style('color','#ff8484ff').hide();
+  delayInfo = createDiv(delayText)
+  .style('font-family','Kaph-Regular')
+  .style('font-size','80px')
   .style('color','#ff8484ff').hide();
 }
 
@@ -241,7 +251,8 @@ function gotPitch(error, frequency){
 // ----- GAME SCREENS -----
 function startScreen(){
     // Sets start screen background
-    background(startBG);
+    background(255);
+    startBG.position(0,0).show();
 
     // If coming from the game screen, hide its buttons and images
     endBox.hide();
@@ -257,6 +268,10 @@ function startScreen(){
     scoreBox.hide();
     timeText.hide();
     scoreText.hide();
+    positionHigh2.hide();
+    positionHigh.hide();
+    positionLow.hide();
+    positionLow2.hide();
 
     // Shows start screen buttons and images
     startHelp.show();
@@ -300,6 +315,7 @@ function gameScreen(){
   background("#96ffff");
 
   // If coming from the start screen, hide its buttons and images
+  startBG.hide();
   startHelp.hide();
   startTitle.hide();
   startPlay.hide();
@@ -324,12 +340,19 @@ function gameScreen(){
   timeText.position(619,30);
   scoreText.position(798,30);
 
-  positionHigh2 = image(positionImg,positionX,89);
+  /*positionHigh2 = image(positionImg,positionX,89);
   positionHigh = image(positionImg,positionX,221);
   //positionBase = image(positionImg,positionX,354);
   positionLow = image(positionImg,positionX,487);
-  positionLow2 = image(positionImg,positionX,620);
-  player = image(playerImg,playerX,playerY);
+  positionLow2 = image(positionImg,positionX,620);*/
+  //player = image(playerImg,playerX,playerY);
+  //player.position(playerX,playerY);
+  positionHigh2.position(positionX,89).show();
+  positionHigh.position(positionX,221).show();
+  positionLow.position(positionX,487).show();
+  positionLow2.position(positionX,620).show();
+
+  playerImg.position(playerX,playerY).show();
 
   // Text settings
   resultText = score + "/" + totalNotes;
@@ -348,29 +371,42 @@ function gameScreen(){
   // ----- During game
   // Runs when the player has started the game. It starts a delay before the gameplay begins
   if (hasPlayerStarted) {
+    delayInfo.show();
     delayStarter = setInterval(delayTimer,1000); // Starts the delay timer
     hasPlayerStarted = false; // Disables this function so it doesn't run anymore
   }
 
   // Displays 3, 2, 1, GO! text before the gameplay starts
   switch (delayCounter) {
+    case 0:
+      delayText = '';
+      delayInfo.html(delayText);
+      break;
     case 1:
-      fill('#ff8484ff');
-      text('3',1440/2,810/2);
+      delayInfo.position(681,356);
+      delayText = '3';
+      delayInfo.html(delayText);
       break;
     case 2:
-      text('2',1440/2,810/2);
+      delayInfo.position(678,356);
+      delayText = '2';
+      delayInfo.html(delayText);
       break;
     case 3:
-      text('1',1440/2,810/2);
+      delayInfo.position(693,357);
+      delayText = '1';
+      delayInfo.html(delayText);
       break;
     case 4:
-      text('KÖR!',1440/2,810/2);
+      delayInfo.position(600,355);
+      delayText = 'KÖR!';
+      delayInfo.html(delayText);
       break;
   }
 
   // Runs when the delay is over. It starts running the game
   if (delayCounter == delay && isDelayOver == false) {
+    delayInfo.hide();
     clearInterval(delayStarter); // Stops the delay timer
     running = true;
     isDelayOver = true; // Disables this function so it doesn't run anymore
@@ -445,7 +481,7 @@ function resetGame() {
   hasGameStarted = false;
   playerY = 307;
   playerCurrent = 3;
-  playerImg = random(characters);
+  playerImg = random(characters).hide();
   totalNotes = 0;
   delayCounter = 0;
   isDelayOver = false;
@@ -496,6 +532,8 @@ class Note {
   }
   display() { // Used to display the note
     image(noteImg, this.x, this.y);
+    //this.noteImage.position(this.x,this.y);
+    //image(noteImg, this.x, this.y, noteImg.width, noteImg.height);
   }
   hitNote() { // Used when a note is hit
     noteSound.play();
@@ -591,6 +629,7 @@ function gameAgain() {
   endQuit.hide();
   candy.hide();
   results.hide();
+  playerImg.hide();
   resetGame();
   hasPlayerStarted = true;
 }
