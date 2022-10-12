@@ -20,6 +20,8 @@ let timeBox; // The container for the time left
 let scoreBox; // The container for the score gained
 let results; // Div containing the text result, div is needed to display text on top of image
 let delayInfo; // Div containing the delay text
+let calibrateBox; // Container for the calibration 
+let startBtnCalibrate; // Button to start the calibration 
 
 let timeText; // Text displaying time remaining
 let scoreText; // Text displaying score gained
@@ -49,6 +51,8 @@ let endPlay; // The "Play again" button on the end popup
 let endQuit; // The "Quit" button on the end popup
 let X; // The X button in the "How to play" box
 let pauseIcon; // The pause icon on the game screen
+let beginPlaying; // The "Begin playing" button on the calibration popup
+let beginPlayingOpac; // The transparent "Begin playing" button on the calibration popup
 
 // Sounds
 let speedSound; // Plays when note speeds up
@@ -60,12 +64,18 @@ let kretsnSound; // Plays when user clicks on Kretsn
 let nphadderietSound; // Plays when user clicks on N-Phadderiet
 let familjenSound; // Plays when user clicks on Familjen
 let skurkerietSound; // Plays when user clicks on Skurkeriet
+let backgroundSound; // Plays when the game starts 
+
 
 // Booleans (they are mostly being used when we want to run a function only once)
 let running = false; // Whether the game is running or not
 let hasPlayerStarted = false; // Runs when player starts the game, triggers delay before game starts
 let isDelayOver = false; // Runs when the delay ends, triggers the start of the game
 let hasGameStarted = false; // Runs when the game starts, triggers gameplay
+let hasCalibrated = false; 
+let showCircles = false;
+let startBackgroundSound = true;
+let hasCalibrationStarted = false; 
 
 // Time
 const gameLength = 30; // How long the game runs
@@ -75,10 +85,12 @@ let delayStarter; // Starts the delay timer
 let timeCounter; // Counts how many seconds the game has been running
 let delayCounter; // Counts how many seconds the game has been delayed
 let timeLeft; // How many seconds are left before the game ends
-// let speed; // The speed of the note (used if note speed should be the same for all displayed notes)
+let speed; // The speed of the note (used if note speed should be the same for all displayed notes)
 let spawnTime; // How many milliseconds between each note spawns
 let nextSpawn; // Needed to spawn new notes
 let speedMode; // Sets a new speed and spawn time
+let calibrationCounter = 6;
+
 
 // Player settings
 let player; // An "image()" that contains an image, an X-pos and a Y-pos
@@ -106,6 +118,14 @@ const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/
 let pitch;
 let audioContext;
 let freq = 0;
+let freqArr = [];
+let avgFreq = 1000;
+
+let pos1;
+let pos2;
+let pos4;
+let pos5;
+
 // ----------
 
 
@@ -167,6 +187,16 @@ function preload() {
   candy = createImg('../assets/note.svg',"").hide();
   timeBox = createImg('../assets/tid.svg',"").hide();
   scoreBox = createImg('../assets/score.svg',"").hide();
+  backgroundSound = loadSound('../assets/sound/september.mp3');
+  calibrateBox = createImg('../assets/kalibrering.svg').hide();
+  startBtnCalibrate = createImg('../assets/starta_kalibrering.svg').hide();
+  textListening = createImg('../assets/lyssnar.svg').hide();
+  calibrateCont = createImg('../assets/fortsätt1.svg').hide();
+  beginPlaying = createImg('../assets/borjaspela.svg').hide();
+  beginPlayingOpac = createImg('../assets/borjaspelaOpac.svg').hide();
+
+  // Loaded images
+  noteImg = loadImage('../assets/note.svg');
 
   // Divs for text
   results = createDiv(resultText)
@@ -272,6 +302,11 @@ function startScreen(){
     positionHigh.hide();
     positionLow.hide();
     positionLow2.hide();
+    calibrateBox.hide();
+    startBtnCalibrate.hide();
+    textListening.hide();
+    beginPlaying.hide();
+    //playerImg.hide();
 
     // Shows start screen buttons and images
     startHelp.show();
@@ -339,6 +374,13 @@ function gameScreen(){
   scoreBox.position(727,15);
   timeText.position(619,30);
   scoreText.position(798,30);
+  calibrateBox.position(428,175);
+  startBtnCalibrate.position(50,0);
+  textListening.position(-50,-450);
+  calibrateCont.position(457,499);
+  beginPlaying.position(457,499);
+  beginPlayingOpac.position(457,499);
+
 
   /*positionHigh2 = image(positionImg,positionX,89);
   positionHigh = image(positionImg,positionX,221);
@@ -347,12 +389,17 @@ function gameScreen(){
   positionLow2 = image(positionImg,positionX,620);*/
   //player = image(playerImg,playerX,playerY);
   //player.position(playerX,playerY);
-  positionHigh2.position(positionX,89).show();
+  /*positionHigh2.position(positionX,89).show();
   positionHigh.position(positionX,221).show();
   positionLow.position(positionX,487).show();
-  positionLow2.position(positionX,620).show();
+  positionLow2.position(positionX,620).show();*/
+  positionHigh2.position(positionX,89).hide();
+  positionHigh.position(positionX,221).hide();
+  positionLow.position(positionX,487).hide();
+  positionLow2.position(positionX,620).hide();
 
-  playerImg.position(playerX,playerY).show();
+
+  playerImg.position(playerX,playerY).hide();
 
   // Text settings
   resultText = score + "/" + totalNotes;
@@ -368,12 +415,35 @@ function gameScreen(){
   pauseIcon.mousePressed(gamePause);
   // -----
 
+
   // ----- During game
-  // Runs when the player has started the game. It starts a delay before the gameplay begins
+  // Runs when the player has started the game. It starts a calibration before the delay begins
   if (hasPlayerStarted) {
-    delayInfo.show();
-    delayStarter = setInterval(delayTimer,1000); // Starts the delay timer
+    showCircles = false;
+    calibrateVoice();
     hasPlayerStarted = false; // Disables this function so it doesn't run anymore
+  }
+
+  if (hasCalibrationStarted) {
+    calibrationStarter = setInterval(calibrationTimer,1000);
+    hasCalibrationStarted = false;
+    calibrationCounter = 0;
+  }
+
+  if (calibrationCounter < 5) {
+    freqArr.push(freq);
+  } else if (calibrationCounter == 5) {
+    avgFreq = freqArr.reduce((a, b) => a + b, 0) / freqArr.length;
+    console.log(avgFreq);
+    calibrationCounter = 6;
+  }
+
+  // Runs when delay starts
+  if (hasCalibrated) {
+    delayInfo.show();
+    showCircles = true;
+    delayStarter = setInterval(delayTimer,1000); // Starts the delay timer
+    hasCalibrated = false;
   }
 
   // Displays 3, 2, 1, GO! text before the gameplay starts
@@ -403,6 +473,30 @@ function gameScreen(){
       delayInfo.html(delayText);
       break;
   }
+  startBtnCalibrate.mousePressed(calibrateVoice);
+  beginPlaying.mousePressed(calibratedOver);
+
+  // Runs when the player has started the game. It starts a delay before the gameplay begins
+  /*if (hasPlayerStarted) {
+    delayInfo.show();
+    delayStarter = setInterval(delayTimer,1000); // Starts the delay timer
+    hasPlayerStarted = false; // Disables this function so it doesn't run anymore
+  }*/
+
+  if (showCircles) {
+    /*positionHigh2 = image(positionImg,positionX,89);
+    positionHigh = image(positionImg,positionX,221);
+    //positionBase = image(positionImg,positionX,354);
+    positionLow = image(positionImg,positionX,487);
+    positionLow2 = image(positionImg,positionX,620);
+    player = image(playerImg,playerX,playerY);*/
+    positionHigh2.show();
+    positionHigh.show();
+    positionLow.show();
+    positionLow2.show();
+    playerImg.show();
+
+  }
 
   // Runs when the delay is over. It starts running the game
   if (delayCounter == delay && isDelayOver == false) {
@@ -418,6 +512,7 @@ function gameScreen(){
     hasGameStarted = true; // Disables this function so it doesn't run anymore
   }
 
+  
   // The game is running
   if (running) {
     // Show relevant icons
@@ -426,6 +521,17 @@ function gameScreen(){
     scoreBox.show();
     scoreText.show();
     timeText.show();
+
+    // Plays the background music 
+    if(startBackgroundSound == true){
+      backgroundSound.setVolume(0.01);
+      backgroundSound.play();
+    }
+    
+    startBackgroundSound = false;
+
+    // Character controller
+    audioControl();  
 
     // Spawn/speed times and game end
     if (timeLeft == 10 && speedMode == 1) {
@@ -471,7 +577,7 @@ function gameScreen(){
 function resetGame() {
   clearInterval(timeStarter);
 	score = 0;
-  //speed = 5;
+  speed = 5;
   spawnTime = 2000;
   nextSpawn = spawnTime;
   timeCounter = 0;
@@ -485,6 +591,10 @@ function resetGame() {
   totalNotes = 0;
   delayCounter = 0;
   isDelayOver = false;
+  startBackgroundSound = true; 
+  backgroundSound.stop(); // Stops the music so it can start again at start  
+  resetCalibration();
+  clearInterval(calibrationCounter);
 }
 
 // Switches between start screen and game screen
@@ -508,16 +618,16 @@ class Note {
     this.x = 1460; // Initial X-position
     totalNotes++; // Counts total amount of spawned notes
 
-    // Sets individual speeds for notes depending on time remaining
+    // Sets speeds for notes depending on time remaining
     switch (speedMode) {
       case 1:
-        this.speed = 5;
+        speed = 5;
         break;
       case 2:
-        this.speed = 6;
+        speed = 6;
         break;
       case 3:
-        this.speed = 7;
+        speed = 7;
         break;
     }
 
@@ -528,12 +638,10 @@ class Note {
       this.hitNote();
     }
     
-    this.x -= this.speed; // Moves note to the left according to speed
+    this.x -= speed; // Moves note to the left according to speed
   }
   display() { // Used to display the note
     image(noteImg, this.x, this.y);
-    //this.noteImage.position(this.x,this.y);
-    //image(noteImg, this.x, this.y, noteImg.width, noteImg.height);
   }
   hitNote() { // Used when a note is hit
     noteSound.play();
@@ -595,7 +703,50 @@ function gamePause() {
   pauseIcon.hide();
 }
 
-// Continue the game from the pause popup and hide it
+// CalibrateBox that show before game starts 
+function calibrate() {
+  calibrateBox.show();
+  startBtnCalibrate.show();
+}
+
+// Calibrates the voice of the player 
+function calibrateVoice() {
+  // Audiocontext will be created in the "suspended" state, and you will need to call resume() after the user gesture
+  audioContext.resume();
+
+  startBtnCalibrate.hide();
+  
+  calibrateBox.show();
+  textListening.show();
+  beginPlaying.show();
+
+  hasCalibrationStarted = true;   
+  
+  // append(freqArr, freq);
+
+  // avgFreq = freqArr.reduce((a, b) => a + b, 0) / freqArr.length;
+
+}
+
+// Ends the calibration and starts the game 
+function calibratedOver() {
+  hasCalibrated = true;
+  calibrateBox.hide();
+  textListening.hide();
+  beginPlaying.hide();
+  freqArr = [];
+}
+
+function resetCalibration() {
+  freqArr = [];
+  calibrationCounter = 6;
+} 
+
+function calibrationTimer() {
+  calibrationCounter++;
+}
+
+// Continue the game from the pause popup and hidcalibratedFreqe it
 function gameContinue() {
   buttonSound.play();
   running = true;
@@ -665,55 +816,65 @@ function skurkerietClick() {
   skurkerietSound.play();
 }
 
-// FOR DEBUG ONLY: Play the game with ASDF keyboard buttons
-function keyPressed() {
-  if (running) {
-    switch(keyCode) {
-      case 65:
-        playerY = 45;
-        playerCurrent = 1;
-        break;
-      case 83:
-        playerY = 172;
-        playerCurrent = 2;
-        break;
-      case 68:
-        playerY = 438;
-        playerCurrent = 4;
-        break;
-      case 70:
-        playerY = 575;
-        playerCurrent = 5;
-        break;
-    }
-    return false;
-  }
-}
-// ----------
+function audioControl(){
+  pos1 = avgFreq*3.00;
+  pos2 = avgFreq*1.50;
+  pos4 = avgFreq*0.50;
+  pos5 = avgFreq*0.25;
 
+  console.log("pos1=" + Math.round(pos1) + "\npos2=" + Math.round(pos2) + "\npos4=" + Math.round(pos4) + "\npos5=" + Math.round(pos5));
 
-// ----- TRASH CAN? -----
-/*//Fixa harmonic product spectrum... 
-function draw() {
-  let volume = mic.getLevel();
-  let threshold = 0.007;
-  console.log("volyme is " + volume);
-  background(43, 236, 82);
-  //Teststorlek samt freq.toFixed skriver ut frekvensen
-  textSize(64);
-  if(volume > threshold){
-    text(freq.toFixed(2), width/2, height/2);
-    //console.log(freq);
+  if(avgFreq == 0) {
+    playerY = 307;
+    playerCurrent = 3;
   }
   else{
-    text("0",width/2, height/2);
+    if(freq >= pos1){
+      playerY = 45;
+      playerCurrent = 1;
+    }
+    else if(pos1 > freq && freq > pos2){
+      playerY = 172;
+      playerCurrent = 2;
+    }
+    else if(pos2 > freq && freq >= pos4){
+      playerY = 438;
+      playerCurrent = 4;
+    }
+    else if(pos4 > freq && freq > 70){
+      playerY = 575;
+      playerCurrent = 5;
+    }
+    else {
+      playerY = 307;
+      playerCurrent = 3;
+    }
   }
-  //FFTn (som egentligen inte ens används)
-  let spectrum = fft.analyze();
-  for (let i = 0; i< spectrum.length; i++){
-    fill(0, 0, 255);
-    let x = map(i, 0, spectrum.length, 0, width);
-    let h = -height + map(spectrum[i], 0, 255, height, 0);
-    rect(x, height, width / spectrum.length, h )
-  }
-}*/
+  
+}
+
+// // FOR DEBUG ONLY: Play the game with ASDF keyboard buttons
+// function keyPressed() {
+//   if (running) {
+//     switch(keyCode) {
+//       case 65:
+//         playerY = 45;
+//         playerCurrent = 1;
+//         break;
+//       case 83:
+//         playerY = 172;
+//         playerCurrent = 2;
+//         break;
+//       case 68:
+//         playerY = 438;
+//         playerCurrent = 4;
+//         break;
+//       case 70:
+//         playerY = 575;
+//         playerCurrent = 5;
+//         break;
+//     }
+//     return false;
+//   }
+// }
+// ----------
