@@ -119,12 +119,20 @@ let pitch;
 let audioContext;
 let freq = 0;
 let freqArr = [];
-let avgFreq = 1000;
 
-let pos1;
-let pos2;
-let pos4;
-let pos5;
+let threshold1;
+let threshold2;
+let avgFreq = 1000;
+let threshold4;
+let threshold5;
+
+let volumeThreshold = 0.007;
+let volume; 
+
+
+let interval; 
+let waveform;
+let trigger;
 
 // ----------
 
@@ -228,8 +236,9 @@ function setup() {
   textAlign(CENTER);
   fft = new p5.FFT();
   mic = new p5.AudioIn();
-  mic.start(listening);
+  /*mic.start(listening)*/;
   fft.setInput(mic);
+  volume = mic.getLevel();
 }
 
 // Draw displays either the start screen or the game screen
@@ -247,7 +256,7 @@ function draw() {
 
 // ----- AUDIO FUNCTIONS -----
 //Laddar in pitchdetection från ml5 samt skriver ut ddet till konsollen
-function listening(){
+function listening() {
   console.log('Listening...');
   pitch = ml5.pitchDetection(
     model_url,
@@ -368,8 +377,8 @@ function gameScreen(){
   pauseContinue.position(457,349);
   pauseQuit.position(457,476);
   pauseIcon.position(1348,14);
-  candy.position(786,217);
-  results.position(511, 260);
+  candy.position(786,250);
+  results.position(511, 300);
   timeBox.position(547,15);
   scoreBox.position(727,15);
   timeText.position(619,30);
@@ -421,6 +430,7 @@ function gameScreen(){
   if (hasPlayerStarted) {
     showCircles = false;
     calibrateVoice();
+    mic.start(listening);
     hasPlayerStarted = false; // Disables this function so it doesn't run anymore
   }
 
@@ -430,12 +440,41 @@ function gameScreen(){
     calibrationCounter = 0;
   }
 
-  if (calibrationCounter < 5) {
+  // Code for the sound wave thing on the calibration
+  if (calibrationCounter >= 0 && calibrationCounter < 3) {
+    waveform = fft.waveform();
+    fill('#ff8484ff');
+    beginShape();
+    strokeWeight(15);
+    for (let i = 0; i < waveform.length; i++) {
+      let x = map(i, 0, waveform.length, 0, width);
+      let y = map(waveform[i], -1, 1, height, 0);
+      vertex(x, y);
+    }
+    endShape();
+  }
+
+  if (calibrationCounter >= 1 && calibrationCounter < 3) {
     freqArr.push(freq);
-  } else if (calibrationCounter == 5) {
-    avgFreq = freqArr.reduce((a, b) => a + b, 0) / freqArr.length;
-    console.log(avgFreq);
+
+  } else if (calibrationCounter == 3) {
+    clearInterval(calibrationStarter);
+    beginPlayingOpac.hide();
+    beginPlaying.show();
     calibrationCounter = 6;
+
+    avgFreq = freqArr.reduce((a, b) => a + b, 0) / freqArr.length;
+    console.log(Math.round(avgFreq));
+
+    interval = (avgFreq-50)/3;
+
+    threshold1 = avgFreq + 3.0*interval;
+    threshold2 = avgFreq + 1.5*interval;
+
+    threshold4 = avgFreq - 1.0*interval;
+    threshold5 = avgFreq - 2.0*interval;
+
+    console.log("threshold1=" + Math.round(threshold1) + "\nthreshold2=" + Math.round(threshold2) + "\nthreshold4=" + Math.round(threshold4) + "\nthreshold5=" + Math.round(threshold5));
   }
 
   // Runs when delay starts
@@ -476,26 +515,12 @@ function gameScreen(){
   startBtnCalibrate.mousePressed(calibrateVoice);
   beginPlaying.mousePressed(calibratedOver);
 
-  // Runs when the player has started the game. It starts a delay before the gameplay begins
-  /*if (hasPlayerStarted) {
-    delayInfo.show();
-    delayStarter = setInterval(delayTimer,1000); // Starts the delay timer
-    hasPlayerStarted = false; // Disables this function so it doesn't run anymore
-  }*/
-
   if (showCircles) {
-    /*positionHigh2 = image(positionImg,positionX,89);
-    positionHigh = image(positionImg,positionX,221);
-    //positionBase = image(positionImg,positionX,354);
-    positionLow = image(positionImg,positionX,487);
-    positionLow2 = image(positionImg,positionX,620);
-    player = image(playerImg,playerX,playerY);*/
     positionHigh2.show();
     positionHigh.show();
     positionLow.show();
     positionLow2.show();
     playerImg.show();
-
   }
 
   // Runs when the delay is over. It starts running the game
@@ -544,6 +569,7 @@ function gameScreen(){
       speedMode = 3;
     } else if (timeLeft == -1) {
       gameComplete(); // Ends game and displays end popup
+      mic.stop();
     }
 
     // Spawning new notes
@@ -592,9 +618,8 @@ function resetGame() {
   delayCounter = 0;
   isDelayOver = false;
   startBackgroundSound = true; 
-  backgroundSound.stop(); // Stops the music so it can start again at start  
+  backgroundSound.stop(); // Stops the music so it can start again at start
   resetCalibration();
-  clearInterval(calibrationCounter);
 }
 
 // Switches between start screen and game screen
@@ -701,6 +726,7 @@ function gamePause() {
   pauseContinue.show();
   pauseQuit.show();
   pauseIcon.hide();
+  mic.stop();
 }
 
 // CalibrateBox that show before game starts 
@@ -717,15 +743,10 @@ function calibrateVoice() {
   startBtnCalibrate.hide();
   
   calibrateBox.show();
-  textListening.show();
-  beginPlaying.show();
+  // textListening.show();
+  beginPlayingOpac.show();
 
   hasCalibrationStarted = true;   
-  
-  // append(freqArr, freq);
-
-  // avgFreq = freqArr.reduce((a, b) => a + b, 0) / freqArr.length;
-
 }
 
 // Ends the calibration and starts the game 
@@ -754,6 +775,7 @@ function gameContinue() {
   pauseContinue.hide();
   pauseQuit.hide();
   pauseIcon.show();
+  mic.start(listening);
 }
 
 // On game end, hide gameplay items and show end popup items
@@ -782,7 +804,10 @@ function gameAgain() {
   results.hide();
   playerImg.hide();
   resetGame();
-  hasPlayerStarted = true;
+  hasPlayerStarted = false;
+  hasCalibrated = true; 
+  mic.start(listening);
+  console.log(avgFreq); //DEBUG
 }
 
 // Show "How to play" box
@@ -817,31 +842,33 @@ function skurkerietClick() {
 }
 
 function audioControl(){
-  pos1 = avgFreq*3.00;
-  pos2 = avgFreq*1.50;
-  pos4 = avgFreq*0.50;
-  pos5 = avgFreq*0.25;
 
-  console.log("pos1=" + Math.round(pos1) + "\npos2=" + Math.round(pos2) + "\npos4=" + Math.round(pos4) + "\npos5=" + Math.round(pos5));
+  console.log("Frek: " + Math.round(freq));
 
-  if(avgFreq == 0) {
+  // Removes frequencies of low volume 
+  // if (volume < volumeThreshold){
+  //   freq = 0;
+  // } 
+
+  if (avgFreq == 0){
     playerY = 307;
     playerCurrent = 3;
   }
-  else{
-    if(freq >= pos1){
+
+  else {
+    if(freq > threshold2){ // && threshold1 > freq kan användas men känns onödigt
       playerY = 45;
       playerCurrent = 1;
     }
-    else if(pos1 > freq && freq > pos2){
+    else if(threshold2 > freq && freq > avgFreq){
       playerY = 172;
       playerCurrent = 2;
     }
-    else if(pos2 > freq && freq >= pos4){
+    else if(avgFreq > freq && freq >= threshold4){
       playerY = 438;
       playerCurrent = 4;
     }
-    else if(pos4 > freq && freq > 70){
+    else if(threshold4 > freq && freq > threshold5){
       playerY = 575;
       playerCurrent = 5;
     }
