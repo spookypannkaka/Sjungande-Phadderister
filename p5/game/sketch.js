@@ -20,13 +20,14 @@ let timeBox; // The container for the time left
 let scoreBox; // The container for the score gained
 let results; // Div containing the text result, div is needed to display text on top of image
 let delayInfo; // Div containing the delay text
-let calibrateBox; // Container for the calibration 
-let startBtnCalibrate; // Button to start the calibration 
+let calibrateBox; // Container for the calibration
+let calibrationInfo; // Container for the calibration text
 
 let timeText; // Text displaying time remaining
 let scoreText; // Text displaying score gained
 let resultText; // Text displaying the results on end, ex. 20/20
 let delayText; // Text during the delay, "3,2,1,GO!"
+let calibrationText; // Text during the calibration
 
 // Phadderister images
 // "Play" are used during gameplay, others are on the start screen
@@ -53,6 +54,7 @@ let X; // The X button in the "How to play" box
 let pauseIcon; // The pause icon on the game screen
 let beginPlaying; // The "Begin playing" button on the calibration popup
 let beginPlayingOpac; // The transparent "Begin playing" button on the calibration popup
+let startBtnCalibrate; // Button to start the calibration 
 
 // Sounds
 let speedSound; // Plays when note speeds up
@@ -64,7 +66,9 @@ let kretsnSound; // Plays when user clicks on Kretsn
 let nphadderietSound; // Plays when user clicks on N-Phadderiet
 let familjenSound; // Plays when user clicks on Familjen
 let skurkerietSound; // Plays when user clicks on Skurkeriet
-let backgroundSound; // Plays when the game starts 
+let septemberSound; // Plays when the game starts 
+let fartSound; // Plays when game is over and the score is 0
+let allstarSound; // Plays on the start screen
 
 
 // Booleans (they are mostly being used when we want to run a function only once)
@@ -72,24 +76,24 @@ let running = false; // Whether the game is running or not
 let hasPlayerStarted = false; // Runs when player starts the game, triggers delay before game starts
 let isDelayOver = false; // Runs when the delay ends, triggers the start of the game
 let hasGameStarted = false; // Runs when the game starts, triggers gameplay
-let hasCalibrated = false; 
-let showCircles = false;
-let startBackgroundSound = true;
-let hasCalibrationStarted = false; 
+let hasCalibrated = false; // Runs when the calibration is over, starts the game 
+let showCircles = false; // Shows circles when the came starts 
+let allstarPlay = true; // Starts the background when the game starts 
+let hasCalibrationStarted = false; // Runs when the calibration has started, makes it possible to gather avgFreq
 
 // Time
 const gameLength = 30; // How long the game runs
-const delay = 5; // How long the game is delayed before start
+const delayTime = 5; // How long the game is delayed before start
 let timeStarter; // Starts the game timer
 let delayStarter; // Starts the delay timer
 let timeCounter; // Counts how many seconds the game has been running
 let delayCounter; // Counts how many seconds the game has been delayed
 let timeLeft; // How many seconds are left before the game ends
-let speed; // The speed of the note (used if note speed should be the same for all displayed notes)
+let noteSpeed; // The speed of the note (used if note speed should be the same for all displayed notes)
 let spawnTime; // How many milliseconds between each note spawns
 let nextSpawn; // Needed to spawn new notes
 let speedMode; // Sets a new speed and spawn time
-let calibrationCounter = 6;
+let calibrationCounter = 7; // Counter that is active during the calibration, 7 is just a random number separated from the time the calibration is active 
 
 
 // Player settings
@@ -118,18 +122,16 @@ const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/
 let pitch;
 let audioContext;
 let freq = 0;
-let freqArr = [];
+let freqArr = []; // Array of all the frequencies gathered during the calibration 
 
-let threshold1;
+// Thresholds for the different position during the game 
+let threshold1; 
 let threshold2;
 let avgFreq = 1000;
 let threshold4;
 let threshold5;
 
-let volumeThreshold = 0.007;
-let volume; 
-
-
+// Calibration wave things
 let interval; 
 let waveform;
 let trigger;
@@ -157,22 +159,26 @@ function preload() {
   nphadderietSound = loadSound('../assets/sound/working.wav');
   familjenSound = loadSound('../assets/sound/foliage.mp3');
   skurkerietSound = loadSound('../assets/sound/evillaugh.mp3');
+  fartSound = loadSound('../assets/sound/fart.mp3');
+  septemberSound = loadSound('../assets/sound/september.mp3');
+  allstarSound = loadSound('../assets/sound/allstar.mp3');
+  
 
   // Loaded images (these are bad as SVG is not supported here, which means images won't scale)
   noteImg = loadImage('../assets/note.svg');
 
   // Created images
   // NOTE: They are all layered! Later images are layered on top of earlier images
-  startBG = createImg('../assets/startBG.svg').hide();
-  positionHigh2 = createImg('../assets/position.svg').hide();
-  positionHigh = createImg('../assets/position.svg').hide();
-  positionLow = createImg('../assets/position.svg').hide();
-  positionLow2 = createImg('../assets/position.svg').hide();
-  legionenPlay = createImg('../assets/legionenPlay.svg').hide();
-  kretsnPlay = createImg('../assets/kretsnPlay.svg').hide();
-  nphadderietPlay = createImg('../assets/n-phadderietPlay.svg').hide();
-  familjenPlay = createImg('../assets/familjenPlay.svg').hide();
-  skurkerietPlay = createImg('../assets/skurkerietPlay.svg').hide();
+  startBG = createImg('../assets/startBG.svg',"").hide();
+  positionHigh2 = createImg('../assets/position.svg',"").hide();
+  positionHigh = createImg('../assets/position.svg',"").hide();
+  positionLow = createImg('../assets/position.svg',"").hide();
+  positionLow2 = createImg('../assets/position.svg',"").hide();
+  legionenPlay = createImg('../assets/legionenPlay.svg',"").hide();
+  kretsnPlay = createImg('../assets/kretsnPlay.svg',"").hide();
+  nphadderietPlay = createImg('../assets/n-phadderietPlay.svg',"").hide();
+  familjenPlay = createImg('../assets/familjenPlay.svg',"").hide();
+  skurkerietPlay = createImg('../assets/skurkerietPlay.svg',"").hide();
   characters = [legionenPlay, kretsnPlay, nphadderietPlay, familjenPlay, skurkerietPlay];
   //noteImg = createImg('../assets/note.svg').hide();
   legionen = createImg('../assets/legionen.svg',"").hide();
@@ -189,19 +195,18 @@ function preload() {
   endPlay = createImg('../assets/spelaigen1.svg',"").hide();
   endQuit = createImg('../assets/avsluta1.svg',"").hide();
   pauseBox = createImg('../assets/paus.svg',"").hide();
-  pauseContinue = createImg('../assets/fortsätt1.svg',"").hide();
+  pauseContinue = createImg('../assets/fortsatt1.svg',"").hide();
   pauseQuit = createImg('../assets/avsluta1.svg',"").hide();
   pauseIcon = createImg('../assets/pausikon.svg',"").hide();
   candy = createImg('../assets/note.svg',"").hide();
   timeBox = createImg('../assets/tid.svg',"").hide();
   scoreBox = createImg('../assets/score.svg',"").hide();
-  backgroundSound = loadSound('../assets/sound/september.mp3');
-  calibrateBox = createImg('../assets/kalibrering.svg').hide();
-  startBtnCalibrate = createImg('../assets/starta_kalibrering.svg').hide();
-  textListening = createImg('../assets/lyssnar.svg').hide();
-  calibrateCont = createImg('../assets/fortsätt1.svg').hide();
-  beginPlaying = createImg('../assets/borjaspela.svg').hide();
-  beginPlayingOpac = createImg('../assets/borjaspelaOpac.svg').hide();
+  calibrateBox = createImg('../assets/kalibrering.svg',"").hide();
+  startBtnCalibrate = createImg('../assets/starta_kalibrering.svg',"").hide();
+  textListening = createImg('../assets/lyssnar.svg',"").hide();
+  calibrateCont = createImg('../assets/fortsatt1.svg',"").hide();
+  beginPlaying = createImg('../assets/borjaspela.svg',"").hide();
+  beginPlayingOpac = createImg('../assets/borjaspelaOpac.svg',"").hide();
 
   // Loaded images
   noteImg = loadImage('../assets/note.svg');
@@ -223,6 +228,10 @@ function preload() {
   .style('font-family','Kaph-Regular')
   .style('font-size','80px')
   .style('color','#ff8484ff').hide();
+  calibrationInfo = createDiv(calibrationText)
+  .style('font-family','Kaph-Regular')
+  .style('font-size','36px')
+  .style('color','#ff8484ff');
 }
 
 // Setup
@@ -231,14 +240,15 @@ function setup() {
   textFont(kaphFont); // Sets the custom font as default
   textSize(48); // Sets default font size
 
+  // Audio setup
   audioContext = getAudioContext();
   canvas.mousePressed(userStartAudio);
-  textAlign(CENTER);
   fft = new p5.FFT();
   mic = new p5.AudioIn();
-  /*mic.start(listening)*/;
+  mic.start(listening);
   fft.setInput(mic);
-  volume = mic.getLevel();
+  
+  textAlign(CENTER);
 }
 
 // Draw displays either the start screen or the game screen
@@ -255,24 +265,24 @@ function draw() {
 
 
 // ----- AUDIO FUNCTIONS -----
-//Laddar in pitchdetection från ml5 samt skriver ut ddet till konsollen
+// Loads pitch detection from ml5 and prints it to the console
 function listening() {
-  console.log('Listening...');
+  //console.log('Listening...');
   pitch = ml5.pitchDetection(
     model_url,
     audioContext,
     mic.stream,
-    modelLoaded);
+    modelLoaded
+    );
 }
 
-//Laddar modellen (oklart varför man måste göra detta?)
+// Loads the model 
 function modelLoaded() {
-  console.log('model loaded');
+  //console.log('model loaded');
   pitch.getPitch(gotPitch);
 }
 
-//Funktionen som kollar om vi har en frekvens, om nej så loggar den ett error, om vi har fått in en frekvens sätts
-//Variabeln freq till vår frekvens sen körs den igen (basically en oändlig loop atm)
+// Function that checks if we have a pitch
 function gotPitch(error, frequency){
   if(error){
     console.log(error);
@@ -290,8 +300,14 @@ function gotPitch(error, frequency){
 // ----- GAME SCREENS -----
 function startScreen(){
     // Sets start screen background
+    mic.stop();
     background(255);
     startBG.position(0,0).show();
+    
+    if (allstarPlay == true) {
+      allstarSound.play();
+      allstarPlay = false;
+    }
 
     // If coming from the game screen, hide its buttons and images
     endBox.hide();
@@ -389,19 +405,9 @@ function gameScreen(){
   calibrateCont.position(457,499);
   beginPlaying.position(457,499);
   beginPlayingOpac.position(457,499);
+  //calibrationInfo.position(400,161);
 
 
-  /*positionHigh2 = image(positionImg,positionX,89);
-  positionHigh = image(positionImg,positionX,221);
-  //positionBase = image(positionImg,positionX,354);
-  positionLow = image(positionImg,positionX,487);
-  positionLow2 = image(positionImg,positionX,620);*/
-  //player = image(playerImg,playerX,playerY);
-  //player.position(playerX,playerY);
-  /*positionHigh2.position(positionX,89).show();
-  positionHigh.position(positionX,221).show();
-  positionLow.position(positionX,487).show();
-  positionLow2.position(positionX,620).show();*/
   positionHigh2.position(positionX,89).hide();
   positionHigh.position(positionX,221).hide();
   positionLow.position(positionX,487).hide();
@@ -438,47 +444,62 @@ function gameScreen(){
     calibrationStarter = setInterval(calibrationTimer,1000);
     hasCalibrationStarted = false;
     calibrationCounter = 0;
+    calibrationInfo.show();
+    calibrationText = '';
+    calibrationInfo.html(calibrationText);
   }
 
   // Code for the sound wave thing on the calibration
-  if (calibrationCounter >= 0 && calibrationCounter < 3) {
+  if (calibrationCounter >= 0 && calibrationCounter < 6) {
     waveform = fft.waveform();
-    fill('#ff8484ff');
     beginShape();
+    stroke('#ff8484ff');
     strokeWeight(15);
     for (let i = 0; i < waveform.length; i++) {
-      let x = map(i, 0, waveform.length, 0, width);
-      let y = map(waveform[i], -1, 1, height, 0);
-      vertex(x, y);
+
+      let xA;
+      let yA;
+
+      xA = map(i, 0, waveform.length, 0, width);
+      yA = map(waveform[i], -1, 1, height, 0);
+      vertex(xA, yA);
     }
     endShape();
   }
 
-  if (calibrationCounter >= 1 && calibrationCounter < 3) {
+  if (calibrationCounter >= 3 && calibrationCounter < 6) {
+    calibrationInfo.position(610,384);
+    calibrationText = 'LYSSNAR...';
+    calibrationInfo.html(calibrationText);
     freqArr.push(freq);
 
-  } else if (calibrationCounter == 3) {
+  } else if (calibrationCounter == 6) {
+    calibrationInfo.position(475,384);
+    calibrationText = 'KALIBRERING FÄRDIG!';
+    calibrationInfo.html(calibrationText);
+
     clearInterval(calibrationStarter);
     beginPlayingOpac.hide();
     beginPlaying.show();
-    calibrationCounter = 6;
+    calibrationCounter = 7;
 
+    // Calculate the average freq during the calibration 
     avgFreq = freqArr.reduce((a, b) => a + b, 0) / freqArr.length;
-    console.log(Math.round(avgFreq));
+    // console.log("Average freq: " + Math.round(avgFreq));
 
     interval = (avgFreq-50)/3;
 
     threshold1 = avgFreq + 3.0*interval;
     threshold2 = avgFreq + 1.5*interval;
-
     threshold4 = avgFreq - 1.0*interval;
     threshold5 = avgFreq - 2.0*interval;
 
-    console.log("threshold1=" + Math.round(threshold1) + "\nthreshold2=" + Math.round(threshold2) + "\nthreshold4=" + Math.round(threshold4) + "\nthreshold5=" + Math.round(threshold5));
+    // console.log("threshold1=" + Math.round(threshold1) + "\nthreshold2=" + Math.round(threshold2) + "\nthreshold4=" + Math.round(threshold4) + "\nthreshold5=" + Math.round(threshold5));
   }
 
   // Runs when delay starts
   if (hasCalibrated) {
+    calibrationInfo.hide();
     delayInfo.show();
     showCircles = true;
     delayStarter = setInterval(delayTimer,1000); // Starts the delay timer
@@ -524,7 +545,7 @@ function gameScreen(){
   }
 
   // Runs when the delay is over. It starts running the game
-  if (delayCounter == delay && isDelayOver == false) {
+  if (delayCounter == delayTime && isDelayOver == false) {
     delayInfo.hide();
     clearInterval(delayStarter); // Stops the delay timer
     running = true;
@@ -533,6 +554,8 @@ function gameScreen(){
 
   // Runs when the game starts running. It starts the game timer
   if (hasGameStarted == false && running) {
+    septemberSound.setVolume(0.4);
+    septemberSound.play();
     timeStarter = setInterval(gameTimer,1000); // Starts the game timer
     hasGameStarted = true; // Disables this function so it doesn't run anymore
   }
@@ -546,14 +569,6 @@ function gameScreen(){
     scoreBox.show();
     scoreText.show();
     timeText.show();
-
-    // Plays the background music 
-    if(startBackgroundSound == true){
-      backgroundSound.setVolume(0.01);
-      backgroundSound.play();
-    }
-    
-    startBackgroundSound = false;
 
     // Character controller
     audioControl();  
@@ -603,7 +618,7 @@ function gameScreen(){
 function resetGame() {
   clearInterval(timeStarter);
 	score = 0;
-  speed = 5;
+  noteSpeed = 5;
   spawnTime = 2000;
   nextSpawn = spawnTime;
   timeCounter = 0;
@@ -617,9 +632,7 @@ function resetGame() {
   totalNotes = 0;
   delayCounter = 0;
   isDelayOver = false;
-  startBackgroundSound = true; 
-  backgroundSound.stop(); // Stops the music so it can start again at start
-  resetCalibration();
+  septemberSound.stop(); // Stops the music so it can start again at start
 }
 
 // Switches between start screen and game screen
@@ -629,7 +642,9 @@ function screenChange() {
   if (screen == 0) { // Start -> Game
   	screen = 1;
     hasPlayerStarted = true; // Triggers the delay before the game starts
+    allstarSound.stop();
   } else if (screen == 1) { // Game -> Start
+    allstarPlay = true;
   	screen = 0;
   }
 }
@@ -646,13 +661,13 @@ class Note {
     // Sets speeds for notes depending on time remaining
     switch (speedMode) {
       case 1:
-        speed = 5;
+        noteSpeed = 5;
         break;
       case 2:
-        speed = 6;
+        noteSpeed = 10;
         break;
       case 3:
-        speed = 7;
+        noteSpeed = 15;
         break;
     }
 
@@ -663,7 +678,7 @@ class Note {
       this.hitNote();
     }
     
-    this.x -= speed; // Moves note to the left according to speed
+    this.x -= noteSpeed; // Moves note to the left according to speed
   }
   display() { // Used to display the note
     image(noteImg, this.x, this.y);
@@ -755,13 +770,11 @@ function calibratedOver() {
   calibrateBox.hide();
   textListening.hide();
   beginPlaying.hide();
+  
+  // Resets the calibration variables 
   freqArr = [];
+  calibrationCounter = 7;
 }
-
-function resetCalibration() {
-  freqArr = [];
-  calibrationCounter = 6;
-} 
 
 function calibrationTimer() {
   calibrationCounter++;
@@ -781,7 +794,12 @@ function gameContinue() {
 // On game end, hide gameplay items and show end popup items
 function gameComplete() {
   running = !running;
-  completeSound.play();
+
+  if (score == 0) {
+    fartSound.play();
+  } else {
+    completeSound.play();
+  }
   endBox.show();
   endPlay.show();
   endQuit.show();
@@ -807,7 +825,6 @@ function gameAgain() {
   hasPlayerStarted = false;
   hasCalibrated = true; 
   mic.start(listening);
-  console.log(avgFreq); //DEBUG
 }
 
 // Show "How to play" box
@@ -843,20 +860,16 @@ function skurkerietClick() {
 
 function audioControl(){
 
-  console.log("Frek: " + Math.round(freq));
+  // console.log("Frek: " + Math.round(freq));
 
-  // Removes frequencies of low volume 
-  // if (volume < volumeThreshold){
-  //   freq = 0;
-  // } 
-
+  // Keeps player in the center if calibration failed 
   if (avgFreq == 0){
     playerY = 307;
     playerCurrent = 3;
   }
 
   else {
-    if(freq > threshold2){ // && threshold1 > freq kan användas men känns onödigt
+    if(freq > threshold2){ // && threshold1 > - Can be used if we want to filter out higher frequencies 
       playerY = 45;
       playerCurrent = 1;
     }
@@ -868,7 +881,7 @@ function audioControl(){
       playerY = 438;
       playerCurrent = 4;
     }
-    else if(threshold4 > freq && freq > threshold5){
+    else if(threshold4 > freq && freq > threshold5 || freq > 50){ // freq > 50 - Is considered noise and is removed
       playerY = 575;
       playerCurrent = 5;
     }
@@ -877,7 +890,6 @@ function audioControl(){
       playerCurrent = 3;
     }
   }
-  
 }
 
 // // FOR DEBUG ONLY: Play the game with ASDF keyboard buttons
