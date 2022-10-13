@@ -664,10 +664,10 @@ class Note {
         noteSpeed = 5;
         break;
       case 2:
-        noteSpeed = 10;
+        noteSpeed = 7;
         break;
       case 3:
-        noteSpeed = 15;
+        noteSpeed = 9;
         break;
     }
 
